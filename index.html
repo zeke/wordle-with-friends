@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Wordle with Friends</title>
+
+    <style>
+
+      #app-container {
+        max-width: 640px;
+        margin: 30px auto;
+        text-align: center;
+        font-weight: bold;
+      }
+
+      form {
+        padding: 5px;
+        margin: 5px;
+        /* background-color: #fafafa; */
+      }
+
+      input {
+        display: inline-block;
+        width: 50px;
+        margin: 5px;
+        height: 50px;
+        text-align: center;
+        font-size: 2rem;
+        text-transform: uppercase;
+        border: 1px solid #999;
+        border-radius: 4px;
+      }
+
+      input.CORRECT {
+        background-color: #6aaa64;
+        color: white;
+        border-color: transparent;
+      }
+
+      input.INWORD {
+        background-color: #c8b458;
+        color: white;
+        border-color: transparent;
+      }
+
+      input.ABSENT {
+        background-color: #787c7e;
+        color: white;
+        border-color: transparent;
+      }
+      
+    </style>
+  </head>
+  <body>
+
+    <div id="app-container">
+      <div id="app"></div>
+    </div>
+    
+
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script type="text/babel">
+      class Row extends React.Component {
+        constructor(props) {
+          super(props);
+          this.state = {
+            guesses: [],
+            scores: []
+          };
+        }
+
+        handleInput = (event) => {
+          const form = event.target.form;
+          const index = [...form].indexOf(event.target);
+          const letter = event.target.value;
+
+          // save guess
+          const guesses = [...this.state.guesses];
+          guesses[index] = letter
+          this.setState({guesses});
+
+          // focus previous or next input
+          let elementToFocus
+          if (event.target.value === '') {
+            elementToFocus = form.elements[index + -1]
+          } else {
+            elementToFocus = form.elements[index + 1]
+          }
+
+          elementToFocus?.focus();
+        };
+
+        getScore = (event) => {
+          if (event.key?.toLowerCase() !== "enter") {
+            return
+          }
+
+          const winningWord = "magic".toLowerCase()
+          const guessedWord = this.state.guesses.join('').toLowerCase()
+          const scores = guessedWord.split("").map((letter, index) => {
+            if (letter === winningWord[index]) {
+              return "CORRECT"
+            } else if (winningWord.includes(letter)) {
+              return "INWORD"
+            } else {
+              return "ABSENT"
+            }
+            return
+          })
+          this.setState({scores});
+
+          console.log({winningWord, guessedWord})
+        };
+      
+        render() {
+          console.log("this.state", this.state);
+          return (
+            <form>
+              {Array.from(Array(this.props.lettersPerWord).keys()).map((i) => {
+                return <input name={`letter_${i}`} className={this.state.scores[i]} maxLength={1} key={`row_${this.props.rowId}_letter_${i}`} onInput={this.handleInput} onKeyUp={this.getScore} />;
+              })}
+            </form>
+          );
+        }
+      }
+      class App extends React.Component {
+        render() {
+          const numGuesses = 6;
+
+          return <div>
+            {Array.from(Array(numGuesses).keys()).map((i) => {
+              return <Row lettersPerWord={5} rowId={i} key={`row_${i}`} />;
+            })}
+          </div>
+        }
+      }
+      
+      ReactDOM.render(React.createElement(App, {}), document.getElementById("app"));
+      
+    </script>
+  </body>
+</html>
