@@ -7,25 +7,16 @@
     <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
-
       #app-container {
-        max-width: 640px;
         margin: 30px auto;
         text-align: center;
         font-weight: bold;
       }
 
-      form {
-        padding: 5px;
-        margin: 5px;
-        display: block;
-        /* background-color: red; */
-      }
 
       input {
         display: inline-block;
         text-align: center;
-        text-transform: uppercase;
         border: 1px solid #999;
         border-radius: 4px;
       }
@@ -62,6 +53,42 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <script type="text/babel">
+      class WordChooser extends React.Component {
+        constructor(props) {
+          super(props);
+          this.state = {
+            guesses: this.props.guesses
+          };
+        }
+
+        handleWordChange = (event) => {
+          const word = event.target.value;
+          const encodedWord = window.btoa(word);
+          this.setState({encodedWord})
+        }
+
+        handleGuessesChange = (event) => {
+          const guesses = event.target.value;
+          this.setState({guesses})
+        }
+
+        url = () => {
+          const { encodedWord, guesses } = this.state;
+          return `/?word=${encodedWord}&guesses=${guesses}`
+        }
+        render = () => {
+          return <div className="mt-20">
+            <h2 className="text-center p-3 text-xl m-3">Choose your own word to send to a friend:</h2>
+
+            <form>
+            <input type="text" name="word" placeholder="Type a word here." className="p-3 m-3" onChange={this.handleWordChange} />
+            <input type="text" name="guesses" placeholder="How many guesses?" className="p-3 m-3" onChange={this.handleGuessesChange} />
+            </form>
+
+            {this.state.encodedWord && <div className="inline-block rounded p-5 px-8 m-3 bg-gray-200 text-gray-600">Send this link to a friend: <a href={this.url()} className="underline text-black" target="_blank">{this.url()}</a></div>}
+          </div>
+        }
+      }
       class Row extends React.Component {
         constructor(props) {
           super(props);
@@ -122,7 +149,10 @@
             <form>
               {this.props.word.split("").map((letter, i) => {
                 return <input name={`letter_${i}`} 
-                  className={"text-xl w-10 h-10 m-1 sm:w-20 sm:h-20 sm:m-2 sm:text-4xl" + " " + this.state.scores[i]}
+                  className={"text-xl w-10 h-10 m-1 outline-green-500 uppercase sm:w-20 sm:h-20 sm:m-2 sm:text-4xl" + " " + this.state.scores[i]}
+                  autoComplete="off"
+                  autoCorrect="off"
+                  autoCapitalize="off" 
                   maxLength={1} 
                   key={`row_${this.props.rowId}_letter_${i}`} 
                   onInput={this.handleInput} 
@@ -136,13 +166,23 @@
       }
       class App extends React.Component {
         render() {
-          const word = "fishy"
-          const numGuesses = 6
+          const words = "onion chart dance trend water block wheel flash table abuse cheek refer basis admit adopt swarm stick catch quote bacon breed ready fairy woman board shine worry clear amuse force berry lease Venus bitch fault shoot queen floor plead sleep cable noble peace image muggy aloof trust spend bread jelly".split(" ")
+          const params = (new URL(document.location)).searchParams;
+          const word = params.get('word')
+            ? window.atob(params.get('word'))
+            : words[Math.floor(Math.random()*words.length)]
+          const guesses = Number(params.get("guesses")) || 5
 
           return <div>
-            {Array.from(Array(numGuesses).keys()).map((i) => {
+
+            <div>
+            {Array.from(Array(guesses).keys()).map((i) => {
               return <Row word={word} key={`row_${i}`} />;
             })}
+            </div>
+
+
+            <WordChooser guesses={guesses} />
           </div>
 
         }
