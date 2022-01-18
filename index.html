@@ -72,20 +72,25 @@
           this.setState({guesses})
         }
 
-        url = () => {
+        query = () => {
           const { encodedWord, guesses } = this.state;
-          return `/?word=${encodedWord}&guesses=${guesses}`
+          return `?word=${encodedWord}&guesses=${guesses}`
         }
+
+        url = () => {
+          return `${window.location.pathname}${this.query()}`
+        }
+
         render = () => {
           return <div className="mt-20">
             <h2 className="text-center p-3 text-xl m-3">Choose your own word to send to a friend:</h2>
 
             <form>
-            <input type="text" name="word" placeholder="Type a word here." className="p-3 m-3" onChange={this.handleWordChange} />
+            <input type="text" name="word" placeholder="Type a word here." className="p-3 m-3"  onChange={this.handleWordChange}  />
             <input type="text" name="guesses" placeholder="How many guesses?" className="p-3 m-3" onChange={this.handleGuessesChange} />
             </form>
 
-            {this.state.encodedWord && <div className="inline-block rounded p-5 px-8 m-3 bg-gray-200 text-gray-600">Send this link to a friend: <a href={this.url()} className="underline text-black" target="_blank">{this.url()}</a></div>}
+            {this.state.encodedWord && <div className="inline-block rounded p-5 px-8 m-3 bg-gray-200 text-gray-600">Send this link to a friend: <a href={this.url()} className="underline text-black" target="_blank">{this.query()}</a></div>}
           </div>
         }
       }
