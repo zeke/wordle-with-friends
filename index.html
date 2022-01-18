@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Wordle with Friends</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
 
@@ -17,16 +18,13 @@
       form {
         padding: 5px;
         margin: 5px;
-        /* background-color: #fafafa; */
+        display: block;
+        /* background-color: red; */
       }
 
       input {
         display: inline-block;
-        width: 50px;
-        margin: 5px;
-        height: 50px;
         text-align: center;
-        font-size: 2rem;
         text-transform: uppercase;
         border: 1px solid #999;
         border-radius: 4px;
@@ -91,15 +89,20 @@
             elementToFocus = form.elements[index + 1]
           }
 
-          elementToFocus?.focus();
+          if (elementToFocus) {
+            elementToFocus.focus()
+          }
         };
 
-        getScore = (event) => {
-          if (event.key?.toLowerCase() !== "enter") {
-            return
+        handleEnter = (event) => {
+          if (event.key?.toLowerCase() === "enter") {
+            this.getScore()
           }
+        }
 
-          
+        getScore = (event) => {
+          event.preventDefault()
+
           const winningWord = "magic".toLowerCase()
           const guessedWord = this.state.guesses.join('').toLowerCase()
           const scores = guessedWord.split("").map((letter, index) => {
@@ -122,8 +125,10 @@
           return (
             <form>
               {Array.from(Array(this.props.lettersPerWord).keys()).map((i) => {
-                return <input name={`letter_${i}`} className={this.state.scores[i]} maxLength={1} key={`row_${this.props.rowId}_letter_${i}`} onInput={this.handleInput} onKeyUp={this.getScore} />;
+                return <input name={`letter_${i}`} className={"text-xl w-10 h-10 m-1 sm:w-20 sm:h-20 sm:m-2 sm:text-4xl" + " " + this.state.scores[i]} maxLength={1} key={`row_${this.props.rowId}_letter_${i}`} onInput={this.handleInput} onKeyUp={this.handleEnter} />;
               })}
+
+              <button className="ml-2" onClick={this.getScore}>🙏🏼</button>
             </form>
           );
         }
@@ -137,6 +142,7 @@
               return <Row lettersPerWord={5} rowId={i} key={`row_${i}`} />;
             })}
           </div>
+
         }
       }
       
