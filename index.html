@@ -94,52 +94,54 @@
           }
         };
 
-        handleEnter = (event) => {
+        handleKeyUp = (event) => {
           if (event.key?.toLowerCase() === "enter") {
             this.getScore()
           }
         }
 
         getScore = (event) => {
-          event.preventDefault()
+          event?.preventDefault()
 
-          const winningWord = "magic".toLowerCase()
           const guessedWord = this.state.guesses.join('').toLowerCase()
           const scores = guessedWord.split("").map((letter, index) => {
-            if (letter === winningWord[index]) {
+            if (letter === this.props.word[index].toLowerCase()) {
               return "CORRECT"
-            } else if (winningWord.includes(letter)) {
+            } else if (this.props.word.toLowerCase().includes(letter)) {
               return "INWORD"
             } else {
               return "ABSENT"
             }
-            return
           })
           this.setState({scores});
-
-          console.log({winningWord, guessedWord})
         };
       
         render() {
-          console.log("this.state", this.state);
+          console.log(this.state);
           return (
             <form>
-              {Array.from(Array(this.props.lettersPerWord).keys()).map((i) => {
-                return <input name={`letter_${i}`} className={"text-xl w-10 h-10 m-1 sm:w-20 sm:h-20 sm:m-2 sm:text-4xl" + " " + this.state.scores[i]} maxLength={1} key={`row_${this.props.rowId}_letter_${i}`} onInput={this.handleInput} onKeyUp={this.handleEnter} />;
+              {this.props.word.split("").map((letter, i) => {
+                return <input name={`letter_${i}`} 
+                  className={"text-xl w-10 h-10 m-1 sm:w-20 sm:h-20 sm:m-2 sm:text-4xl" + " " + this.state.scores[i]}
+                  maxLength={1} 
+                  key={`row_${this.props.rowId}_letter_${i}`} 
+                  onInput={this.handleInput} 
+                  onKeyUp={this.handleKeyUp} />;
               })}
 
-              <button className="ml-2" onClick={this.getScore}>🙏🏼</button>
+              <button className="ml-2 sm:hidden" onClick={this.getScore}>🙏🏼</button>
             </form>
           );
         }
       }
       class App extends React.Component {
         render() {
-          const numGuesses = 6;
+          const word = "fishy"
+          const numGuesses = 6
 
           return <div>
             {Array.from(Array(numGuesses).keys()).map((i) => {
-              return <Row lettersPerWord={5} rowId={i} key={`row_${i}`} />;
+              return <Row word={word} key={`row_${i}`} />;
             })}
           </div>
 
