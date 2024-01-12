@@ -7,53 +7,34 @@
     <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
-      #app-container {
-        margin: 30px auto;
-        text-align: center;
-        font-weight: bold;
-      }
-
-
-      input {
-        display: inline-block;
-        text-align: center;
-        border: 1px solid #999;
-        border-radius: 4px;
-      }
-
       input.CORRECT {
-        background-color: #6aaa64;
         color: white;
-        border-color: transparent;
+        background-color: #599B50;
       }
 
       input.INWORD {
-        background-color: #c8b458;
         color: white;
-        border-color: transparent;
+        background-color: #BDA747;
       }
 
       input.ABSENT {
-        background-color: #787c7e;
         color: white;
-        border-color: transparent;
-      }
-      
+        background-color: #65696B;
+      }      
     </style>
   </head>
   <body>
 
-    <div id="app-container">
+    <div id="app-container" class="font-bold text-center my-10 mx-auto">
       <div id="app"></div>
     </div>
     
-
     <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <script type="text/babel">
-      class WordChooser extends React.Component {
+      class ChooseYourOwnWord extends React.Component {
         constructor(props) {
           super(props);
           this.state = {
@@ -74,23 +55,24 @@
 
         query = () => {
           const { encodedWord, guesses } = this.state;
-          return `?word=${encodedWord}&guesses=${guesses}`
+          // omitting guesses for now
+          // return `?word=${encodedWord}&guesses=${guesses}`
+          return `?word=${encodedWord}`
         }
 
         url = () => {
-          return `${window.location.pathname}${this.query()}`
+          return [window.location.origin, window.location.pathname, this.query()].join("")
         }
 
         render = () => {
           return <div className="mt-20">
-            <h2 className="text-center p-3 text-xl m-3">Choose your own word to send to a friend:</h2>
+            <h2 className="text-center p-3 text-xl m-3">Send your own word to a friend:</h2>
 
             <form>
-            <input type="text" name="word" placeholder="Type a word here." className="p-3 m-3"  onChange={this.handleWordChange}  />
-            <input type="text" name="guesses" placeholder="How many guesses?" className="p-3 m-3" onChange={this.handleGuessesChange} />
+            <input type="text" name="word" placeholder="Type any word here!" className="border font-bold p-3 m-3"  onChange={this.handleWordChange}  />
             </form>
 
-            {this.state.encodedWord && <div className="inline-block rounded p-5 px-8 m-3 bg-gray-200 text-gray-600">Send this link to a friend: <a href={this.url()} className="underline text-black" target="_blank">{this.query()}</a></div>}
+            {this.state.encodedWord && <div className="inline-block rounded p-5 px-8 m-3 bg-gray-200 text-gray-600">Send this link to a friend: <a href={this.url()} className="underline text-black" target="_blank">{this.url()}</a></div>}
           </div>
         }
       }
@@ -147,14 +129,37 @@
           })
           this.setState({scores});
         };
-      
+
+        getClassNames = () => {
+          return `
+            w-10
+            h-10
+            m-1
+            sm:w-20
+            sm:h-20 
+            sm:text-4xl
+            
+            border
+            focus:border-2
+            rounded-md
+            border-gray-300
+            outline-lime-500
+            transition-all
+            
+            text-center
+            text-xl
+            font-bold
+            uppercase
+          `.split("\n").join(" ").trim()
+        }
+
         render() {
           console.log(this.state);
           return (
             <form>
               {this.props.word.split("").map((letter, i) => {
                 return <input name={`letter_${i}`} 
-                  className={"text-xl w-10 h-10 m-1 outline-green-500 uppercase sm:w-20 sm:h-20 sm:m-2 sm:text-4xl" + " " + this.state.scores[i]}
+                  className={this.getClassNames() + " " + this.state.scores[i]}
                   autoComplete="off"
                   autoCorrect="off"
                   autoCapitalize="off" 
@@ -176,9 +181,10 @@
           const word = params.get('word')
             ? window.atob(params.get('word'))
             : words[Math.floor(Math.random()*words.length)]
-          const guesses = Number(params.get("guesses")) || 5
+          const guesses = Number(params.get("guesses")) || 6
 
           return <div>
+            <h1 className="text-center p-3 text-2xl m-3">WORDLE with friends</h1>
 
             <div>
             {Array.from(Array(guesses).keys()).map((i) => {
@@ -187,7 +193,7 @@
             </div>
 
 
-            <WordChooser guesses={guesses} />
+            <ChooseYourOwnWord guesses={guesses} />
           </div>
 
         }
